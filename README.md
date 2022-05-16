@@ -1,4 +1,4 @@
-# tutorial-code
+# Tutorial Code
 
 Code projects and snippets for Quix tutorials and docs
 
