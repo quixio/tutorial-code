@@ -5,7 +5,7 @@ import datetime as dt
 from time import sleep
 from kafka import KafkaProducer
 
-file = "Online_retail_II.csv"
+file = r"C:\Users\booki\Documents\_DATASETS\online_retail_II.csv"
 
 # Initialize Kafka Producer Client
 producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
