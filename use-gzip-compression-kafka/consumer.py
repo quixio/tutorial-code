@@ -10,10 +10,13 @@ consumer = KafkaConsumer('nginx-access-log-compressed-test3',
                          enable_auto_commit=False)
 
 for message in consumer:
-    # Message value and key are raw bytes -- decode if necessary!
-    # For example, for unicode: `message.value.decode('utf-8')`
+    # Message is decoded from bytes with value_deserializer (in line 8)
     m = message.value
+    
+    # Load decoded message string as JSON
     mj = json.loads(m)
+    
+    # Print a subset of data points from the log entry
     print(f"TOPIC: {message.topic},"
           f"PARTITION: {message.partition},"
           f"OFFSET: {message.offset},"
