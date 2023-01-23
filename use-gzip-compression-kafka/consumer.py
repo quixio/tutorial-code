@@ -1,7 +1,8 @@
 from kafka import KafkaConsumer
 import json
 
-# To consume latest messages from the given topic and auto-commit offsets
+# Consume all the messages from the topic but do not mark them as 'read' (enable_auto_commit=False)
+# so that we can re-read them as often as we like.
 consumer = KafkaConsumer('nginx-access-log-compressed-test3',
                          group_id='test-consumer-group',
                          bootstrap_servers=['localhost:9092'],
