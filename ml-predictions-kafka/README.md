@@ -8,4 +8,4 @@ The tutorial shows you how to create a system on your local machine that emulate
 * It sends the predictions back to the email server, also via Kafka
 * The mail server can then update the spam label in its email database
 
-
+**NOTE**: Originally, the tutorial used the `kafka-python` library but has now been updated to use the [Quix Streams](https://github.com/quixio/quix-streams) library. You can still find the old versions of the code in the subfolder [kafka-python-version](kafka-python-version).
