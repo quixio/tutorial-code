@@ -17,11 +17,11 @@ client = qx.KafkaStreamingClient('127.0.0.1:9092')
 print("Initializing consumer...")
 commit_settings = qx.CommitOptions()
 commit_settings.auto_commit_enabled = False # Make sure we can read the same messages again (for testing)
-topic_consumer = client.get_topic_consumer("emails", commit_settings=commit_settings,auto_offset_reset=qx.AutoOffsetReset.Earliest)
+topic_consumer = client.get_topic_consumer("temails", commit_settings=commit_settings,auto_offset_reset=qx.AutoOffsetReset.Earliest)
 
 #2 — Initialize a Quix Streams producer for sending predictions to the predictions topic
 print("Initializing producer...")
-topic_producer = client.get_topic_producer('predictions')
+topic_producer = client.get_topic_producer('tspredictions')
 output_stream = topic_producer.create_stream()
 
 print(f"Initialized Kafka producer at {dt.datetime.utcnow()}")
@@ -38,9 +38,15 @@ def on_dataframe_received_handler(stream_consumer: qx.StreamConsumer, df: pd.Dat
 
     # Create a new message with the MessageID and the SpamFlag
     df["Spamflag"] = inference
-    df_m = df[['ID', 'Spamflag']]
 
-    # Publish the spam predictions to the predictions toppic
+    # In Quix Streams, a message always needs a timestamp
+    # so we an extra one for the time of the prediction
+    df["TimestampInference"] = time.time_ns() // 1_000_000
+
+    # Create a new DataFrame without the email text to reduce data transmission
+    df_m = df[['TimestampInference','ID', 'Spamflag']]
+
+    # Publish the spam predictions to the predictions topic
     output_stream.timeseries.publish(df_m)
     print("Prediction sent: \n", df_m.to_markdown(), "\n\n\n")
 

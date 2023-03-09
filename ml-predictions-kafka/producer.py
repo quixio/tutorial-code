@@ -9,7 +9,7 @@ client = qx.KafkaStreamingClient('127.0.0.1:9092')
 
 # Initialize the destination topic
 print("Initializing topic")
-topic_producer = client.get_topic_producer('emails')
+topic_producer = client.get_topic_producer('temails')
 output_stream = topic_producer.create_stream()
 
 print(f'Initialized Quix Streams client at {dt.datetime.utcnow()}')
