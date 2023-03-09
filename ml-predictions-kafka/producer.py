@@ -1,26 +1,32 @@
-
 # importing packages
 import pandas as pd
-import json
+import time
 import datetime as dt
-from kafka import KafkaProducer
+import quixstreams as qx
 
-df = pd.read_csv("spam.csv")
+# Initialize the Quix Streams client
+client = qx.KafkaStreamingClient('127.0.0.1:9092')
 
-print(df.head())
+# Initialize the destination topic
+print("Initializing topic")
+topic_producer = client.get_topic_producer('emails')
+output_stream = topic_producer.create_stream()
 
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
-                         value_serializer=lambda x:
-                         json.dumps(x,default=str).encode('utf-8'))
+print(f'Initialized Quix Streams client at {dt.datetime.utcnow()}')
 
-print('Initialized Kafka producer at {}'.format(dt.datetime.utcnow()))
+# Read in the CSV file
+df = pd.read_csv("spam-timeseries.csv")
 
-for i in df.index:
+for i in range(len(df)):
+    # Create small data frame for each message
+    df_r = df.iloc[[i]]
 
-    data = {'MessageID': str(i),
-            'MessageBody': df['Message'][i]}
+    # Print the message so you can see what is being sent
+    print("Sending Message: \n", df_r.to_markdown())
 
-    print(data)
-    producer.send(topic="emails", value=data)
+    # Send the data with the Quix Streams client
+    output_stream.timeseries.publish(df_r)
 
-print('Sent record to topic at time {}'.format(dt.datetime.utcnow()))
+    # Optionally wait for half a second to slow down the stream
+    # so that we can see what is happening.
+    time.sleep(0.5)

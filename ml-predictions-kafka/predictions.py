@@ -5,41 +5,54 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 import numpy as np
-from kafka import KafkaProducer
-from kafka import KafkaConsumer
+import quixstreams as qx
 import tensorflow_text as text
 
 model = keras.models.load_model('model')
 
-# Initialize a Consumer for reading the email messages from the emails topic
-consumer = KafkaConsumer(group_id="python-consumer",
-                         bootstrap_servers=['localhost:9092'],
-                         auto_offset_reset='earliest',
-                         enable_auto_commit=False,
-                         value_deserializer=lambda x:json.loads(x))
+#1 — Initialize the Quix Streams client (for standalone Kafka)
+client = qx.KafkaStreamingClient('127.0.0.1:9092')
 
-consumer.subscribe("emails")
-print('Initialized Kafka consumer at {}'.format(dt.datetime.utcnow()))
+#2 — Initialize a Quix Streams consumer to read from the emails topic (with some extra commit settings)
+print("Initializing consumer...")
+commit_settings = qx.CommitOptions()
+commit_settings.auto_commit_enabled = False # Make sure we can read the same messages again (for testing)
+topic_consumer = client.get_topic_consumer("emails", commit_settings=commit_settings,auto_offset_reset=qx.AutoOffsetReset.Earliest)
 
-# # Initialize a Producer for sending predictions to the predictions topic
-producer = KafkaProducer(bootstrap_servers=['localhost:9092'],
-                         value_serializer=lambda x: json.dumps(x,default=str).encode('utf-8'))
-print('Initialized Kafka producer at {}'.format(dt.datetime.utcnow()))
+#2 — Initialize a Quix Streams producer for sending predictions to the predictions topic
+print("Initializing producer...")
+topic_producer = client.get_topic_producer('predictions')
+output_stream = topic_producer.create_stream()
 
-for message in consumer:
-    # parsing data
-    m=message.value
-    # Turn the message back into a DataFrame
-    df=DataFrame(m,index=[0])
-    # Extract the Message from the DataFrame
-    dff = pd.Series(df['MessageBody'])
-    # Get a spam prediction for the message
+print(f"Initialized Kafka producer at {dt.datetime.utcnow()}")
+
+# Initialize the Quix stream handling functions for DataFrames
+def on_dataframe_received_handler(stream_consumer: qx.StreamConsumer, df: pd.DataFrame):
+    print("Processing Message: \n", df.to_markdown(), "\n")
+
+    # Extract the email text from the DataFrame (in a format that the model expects)
+    dff = pd.Series(df['Message'])
+
+    # Get a spam prediction for the email text
     inference = (model.predict(dff) > 0.5).astype(int)
 
     # Create a new message with the MessageID and the SpamFlag
-    data = {'SpamFlag': inference[0][0],
-            'MessageID': m['MessageID']}
-    # Send the message to the predictions topic.
-    print(f'Sending message: {data}')
-    producer.send(topic="predictions",value=data)
-    print('Sent record to topic at time {}'.format(dt.datetime.utcnow()))
+    df["Spamflag"] = inference
+    df_m = df[['ID', 'Spamflag']]
+
+    # Publish the spam predictions to the predictions toppic
+    output_stream.timeseries.publish(df_m)
+    print("Prediction sent: \n", df_m.to_markdown(), "\n\n\n")
+
+def on_stream_received_handler(stream_consumer: qx.StreamConsumer):
+    # Subscribe to new DataFrames being received
+    stream_consumer.timeseries.on_dataframe_received = on_dataframe_received_handler
+
+
+# Subscribe to new streams being received
+topic_consumer.on_stream_received = on_stream_received_handler
+
+print("Listening to streams. Press CTRL-C to exit.")
+
+# Handle termination signals and provide a graceful exit
+qx.App.run()
