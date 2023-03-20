@@ -1,4 +1,3 @@
-from kafka import KafkaConsumer
 import quixstreams as qx
 import datetime as dt
 from geopy.distance import distance
