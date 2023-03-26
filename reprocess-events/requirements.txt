@@ -1,0 +1,4 @@
+quixstreams
+pandas
+tabulate
+duckdb
