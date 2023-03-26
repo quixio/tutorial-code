@@ -2,3 +2,4 @@ quixstreams
 pandas
 tabulate
 duckdb
+geopy
