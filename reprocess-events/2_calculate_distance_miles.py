@@ -7,12 +7,14 @@ import pandas as pd
 print("Using local kafka")
 client = qx.KafkaStreamingClient('127.0.0.1:9092')
 
-df_i = pd.DataFrame()
+df_dict = {}
 
 def calc_distance(df):
     df['point'] = df.apply(lambda row: Point(latitude=row['latitude'], longitude=row['longitude']), axis=1)
     df['point_prev'] = df['point'].shift(1)
     df['distance_miles'] = df.apply(lambda row: geodesic(row['point'], row['point_prev']).miles if row['point_prev'] is not None else float('nan'), axis=1)
+    # Added to debug distance calculations:
+    print(f"distance between deviceID {df['track_id'].shift(1).iloc[0]}: {df['latitude'].shift(1).iloc[0]}/{df['latitude'].shift(1).iloc[0]} and deviceID: {df['track_id'].iloc[0]}: {df['latitude'].iloc[0]}/{df['latitude'].iloc[0]} is {df['distance_miles'].iloc[0]}")
     return df['distance_miles']
 
 #2 — Initialize a Quix Streams consumer to read from the predictions topic (with some extra commit settings)
@@ -21,28 +23,34 @@ topic_consumer = client.get_topic_consumer("raw-trackpoints", "distance_calculat
 #3 — Initialize a Quix Streams producer for sending predictions to the predictions topic
 print("Initializing producer...")
 topic_producer = client.get_topic_producer('distance-calcs')
-output_stream = topic_producer.create_stream()
-
 print(f"Initialized Kafka producer at {dt.datetime.utcnow()}")
 
 
 def on_dataframe_released_handler(stream_consumer: qx.StreamConsumer, df: pd.DataFrame):
 
-    global df_i
-    # Add last-buffer's last row, to have the previous last location in df
-    df = pd.concat([df_i, df], ignore_index=True)
+    global df_dict
+    # Add last-buffer's last row, to have the previous last location in df (formerly: "df = df_i.append(df)")
+    sid = stream_consumer.stream_id
+    print("StreamID: ",sid)
+
+    # Check if the key exists in the df_dict dictionary, if not, initialize it with an empty DataFrame
+    if sid not in df_dict:
+        df_dict[sid] = pd.DataFrame()
+
+    df = df_dict[sid].append(df)
 
     # Add distance
     df['distance'] = calc_distance(df)
     latest = df.tail(1)
 
     # Data to output (all rows minus first one, coming from last buffer)
+    output_stream = topic_producer.get_or_create_stream(f"device_{df['track_id']}")
     output_stream.timeseries.publish(df.iloc[1:])
     # Print the current total distance traveled
     print(f"Sending results: | timestamp: [{dt.datetime.utcnow()}] | total distance so far: [{latest['distance'].iloc[0]}.] | device id: [{latest['track_id'].iloc[0]}]  |")
 
     # Update first row for next buffer
-    df_i = df.iloc[[-1]]
+    df_dict[sid] = df.iloc[[-1]]
 
 def on_stream_received_handler(stream_consumer: qx.StreamConsumer):
     # Create buffer
