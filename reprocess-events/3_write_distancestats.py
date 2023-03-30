@@ -18,25 +18,26 @@ print(f'Initialized Quix Streams client at {dt.datetime.utcnow()}')
 
 def on_dataframe_received_handler(stream_consumer: qx.StreamConsumer, df: pd.DataFrame):
     # Log the prediction in a human-readable format
-    print("Distance calc received: \n", df.to_markdown(), "\n\n")
+    lrow = df.tail(1)
+    print("Distance calc received: \n", lrow[['track_id','distance']].to_markdown(), "\n\n")
     print("Updating DB...")
     cur = conn.cursor()
-    cur.execute(f"SELECT * FROM dist_calc WHERE track_id = {int(df['track_id'])};")
+    cur.execute(f"SELECT * FROM dist_calc WHERE track_id = {int(lrow['track_id'].iloc[0])};")
     existing_record = cur.fetchone()
 
-    # Check if a record with the ID "123" already exists
+    # Check if a record with the ID already exists
     if existing_record is None:
         # Create a new record
         print(
-            f"Attempting to INSERT INTO dist_calc (track_id, distance) VALUES ({int(df['track_id'])}, {float(df['distance'])});")
+            f"Attempting to INSERT INTO dist_calc (track_id, distance) VALUES ({int(lrow['track_id'].iloc[0])}, {float(lrow['distance'].iloc[0])});")
         cur.execute(
-            f"INSERT INTO dist_calc (track_id, distance) VALUES ({int(df['track_id'])}, {float(df['distance'])});")
+            f"INSERT INTO dist_calc (track_id, distance) VALUES ({int(lrow['track_id'].iloc[0])}, {float(lrow['distance'].iloc[0])});")
     else:
         # Update the existing record
         print(
-            f"Attempting to UPDATE dist_calc SET distance = {float(df['distance'])} WHERE track_id = {int(df['track_id'])}")
+            f"Attempting to UPDATE dist_calc SET distance = {float(lrow['distance'].iloc[0])} WHERE track_id = {int(lrow['track_id'].iloc[0])}")
         cur.execute(
-            f"UPDATE dist_calc SET distance = {float(df['distance'])} WHERE track_id = {int(df['track_id'])}")
+            f"UPDATE dist_calc SET distance = {float(lrow['distance'].iloc[0])} WHERE track_id = {int(lrow['track_id'].iloc[0])}")
     conn.commit()
 
 def on_stream_received_handler(stream_consumer: qx.StreamConsumer):
