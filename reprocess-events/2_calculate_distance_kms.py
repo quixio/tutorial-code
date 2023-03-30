@@ -25,7 +25,7 @@ def calc_distance(df):
     # Duplicate the "point" column in the DataFrame but shift it down one row so that we have the previous point from the previous row. 
     df['point_prev'] = df['point'].shift(1)
     
-    # For each row, calculate the distance between "point" and "point_prev" and add it to a new "distance_kms" column
+    # For each row, calculate the distance in KILOMETERS between "point" and "point_prev" and add it to a new "distance_kms" column
     df['distance_kms'] = df.apply(lambda row: geodesic(row['point'], row['point_prev']).kilometers if row['point_prev'] is not None else float('nan'), axis=1)
     
     # Cumulatively add up the values in the "distance_kms" and put the running totals in a new "distance_cumulative" column
