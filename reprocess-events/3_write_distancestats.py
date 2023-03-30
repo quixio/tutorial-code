@@ -17,10 +17,13 @@ topic_consumer = client.get_topic_consumer("distance-calcs", "database-writer", 
 print(f'Initialized Quix Streams client at {dt.datetime.utcnow()}')
 
 def on_dataframe_received_handler(stream_consumer: qx.StreamConsumer, df: pd.DataFrame):
-    # Log the prediction in a human-readable format
+  
+    # Get the last row of the DataFrame which contains the latest cumulative distance total
     lrow = df.tail(1)
+    
     print("Distance calc received: \n", lrow[['track_id','distance']].to_markdown(), "\n\n")
     print("Updating DB...")
+    
     cur = conn.cursor()
     cur.execute(f"SELECT * FROM dist_calc WHERE track_id = {int(lrow['track_id'].iloc[0])};")
     existing_record = cur.fetchone()
