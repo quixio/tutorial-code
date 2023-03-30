@@ -5,17 +5,22 @@ import datetime as dt
 
 # Create DB (embedded DBMS)
 conn = duckdb.connect(database='distance-stats.duckdb')
-# create a new table if it doesn't already exist.
+
+# Create a new table if it doesn't already exist.
 conn.execute('''CREATE TABLE IF NOT EXISTS dist_calc
                  (track_id INTEGER PRIMARY KEY, distance REAL)''')
 
+
+# Initialize the Quix Streams client for generic Kafka
 print("Using local kafka")
 client = qx.KafkaStreamingClient('127.0.0.1:9092')
 
+# Initialize a Quix Streams consumer
 topic_consumer = client.get_topic_consumer("distance-calcs", "database-writer", auto_offset_reset=qx.AutoOffsetReset.Earliest)
 
 print(f'Initialized Quix Streams client at {dt.datetime.utcnow()}')
 
+# Process each incoming DataFrame from the "distance-calcs" topic.
 def on_dataframe_received_handler(stream_consumer: qx.StreamConsumer, df: pd.DataFrame):
   
     # Get the last row of the DataFrame which contains the latest cumulative distance total
@@ -28,7 +33,7 @@ def on_dataframe_received_handler(stream_consumer: qx.StreamConsumer, df: pd.Dat
     cur.execute(f"SELECT * FROM dist_calc WHERE track_id = {int(lrow['track_id'].iloc[0])};")
     existing_record = cur.fetchone()
 
-    # Check if a record with the ID already exists
+    # Check if a record with the Device ID already exists
     if existing_record is None:
         # Create a new record
         print(
