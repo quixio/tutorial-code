@@ -68,7 +68,7 @@ def on_dataframe_released_handler(stream_consumer: qx.StreamConsumer, df: pd.Dat
 def on_stream_received_handler(stream_consumer: qx.StreamConsumer):
     # Create buffer
     buffer = stream_consumer.timeseries.create_buffer()
-    buffer.packet_size = 5 # buffer the data until 5 rows have acculated
+    buffer.packet_size = 5 # buffer the data until 5 rows have accumulated
     buffer.on_dataframe_released = on_dataframe_released_handler # Send a message for containing a 5-row DataFrame
 
 # Subscribe to new streams being received
