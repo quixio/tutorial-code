@@ -38,12 +38,14 @@ def on_dataframe_received_handler(stream_consumer: qx.StreamConsumer, df: pd.Dat
         # Create a new record
         print(
             f"Attempting to INSERT INTO dist_calc (track_id, distance) VALUES ({int(lrow['track_id'].iloc[0])}, {float(lrow['distance'].iloc[0])});")
+        print("(If this console output has stopped, it means you can safely stop this consumer with CTRL-C. You need to stop it in order to query the database.)")
         cur.execute(
             f"INSERT INTO dist_calc (track_id, distance) VALUES ({int(lrow['track_id'].iloc[0])}, {float(lrow['distance'].iloc[0])});")
     else:
         # Update the existing record
         print(
             f"Attempting to UPDATE dist_calc SET distance = {float(lrow['distance'].iloc[0])} WHERE track_id = {int(lrow['track_id'].iloc[0])}")
+        print("(If this console output has stopped, it means you can safely stop this consumer with CTRL-C. You need to stop it in order to query the database.)")
         cur.execute(
             f"UPDATE dist_calc SET distance = {float(lrow['distance'].iloc[0])} WHERE track_id = {int(lrow['track_id'].iloc[0])}")
     conn.commit()

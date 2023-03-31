@@ -3,6 +3,8 @@ from geopy import Point
 from geopy.distance import geodesic
 import datetime as dt
 import pandas as pd
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning) # We know "df.append" is going to be deprecated already...
 
 print("Using local kafka")
 client = qx.KafkaStreamingClient('127.0.0.1:9092')
