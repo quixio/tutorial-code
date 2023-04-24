@@ -10,6 +10,7 @@ print("Using local kafka")
 client = qx.KafkaStreamingClient('127.0.0.1:9092')
 
 # Define a dictionary to store previous distance values for each device
+# (NOTE: In a production scenario, you would use a proper state store as documented here: https://quix.io/docs/client-library/state-management.html)
 df_dict = {}
 
 # Function to calculate the distance between to points
