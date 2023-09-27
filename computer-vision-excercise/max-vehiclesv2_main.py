@@ -3,9 +3,6 @@ import os
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Initialize local file storage
-storage = qx.LocalFileStorage()
-
 # Initialize Quix Streaming Client
 client = qx.QuixStreamingClient()
 
