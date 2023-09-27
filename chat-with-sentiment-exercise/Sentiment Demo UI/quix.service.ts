@@ -22,7 +22,7 @@ export class QuixService {
   /*~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-*/
   /*WORKING LOCALLY? UPDATE THESE!*/
   private workingLocally = false; // set to true if working locally
-  private token: string = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1qVTBRVE01TmtJNVJqSTNOVEpFUlVSRFF6WXdRVFF4TjBSRk56SkNNekpFUWpBNFFqazBSUSJ9.eyJodHRwczovL3F1aXguYWkvb3JnX2lkIjoiZGVtbyIsImh0dHBzOi8vcXVpeC5haS9vd25lcl9pZCI6ImF1dGgwfGM1M2QzMzIxLTgwZDItNGQzYS1hNmU3LTdmYjY1NGM5YzJmMiIsImh0dHBzOi8vcXVpeC5haS90b2tlbl9pZCI6IjNjYzFjMTZhLTVlNmEtNGYwMC1iODhhLThhYzE5MzkwMDdlYiIsImh0dHBzOi8vcXVpeC5haS9leHAiOiIyMDk5MjU3MjAwIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnF1aXguYWkvIiwic3ViIjoiV3lmT3lRSmQ3Mk94WkJQQmRMUlpiVlYwSWVma0JyVXpAY2xpZW50cyIsImF1ZCI6InF1aXgiLCJpYXQiOjE2OTUxMjE2OTYsImV4cCI6MTY5NzcxMzY5NiwiYXpwIjoiV3lmT3lRSmQ3Mk94WkJQQmRMUlpiVlYwSWVma0JyVXoiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMiLCJwZXJtaXNzaW9ucyI6W119.b_6WtwsjuQklXeZA7TpUmWbOQ9xr0bpJ_3xfyZjSc0lLVhH3aAUrci1ofUFajTOCkes-6uhe_Bu9zD5fQimpKvCJ4fplIjRGXQSuFz9aiH2AOUZD2BOLaQZipmzgEjkNnomqwLCuE3f8Q2026lm3B685XHCHt7YiCHt3JdW4yOVjiJZjAfNd4stJUtAWeTUl7og1gN9SuBMQ9Z3zHjO2TBQieQ2xAI812MbAaGDd7TWKkvPlMgdxApe6bu5nMCaE7_HLrSGNBKnkQ_Z_TTFiW_e9yaAmOojtANn2Jx21-OWfEg9aG8-FcoNSjkCaD3JTSTk0MNHEEuLGmpowxzZmGg'; // Create a token in the Tokens menu and paste it here
+  private token: string = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1qVTBRVE01TmtJNVJqSTNOVEpFUlVSRFF6WXdRVFF4TjBSRk56SkNNekpFUWpBNFFqazBSUSJ9.eyJodHRwczovL3F1aXguYWkvb3JnX2lkIjoiY3J5cHRvbWVybGlubyIsImh0dHBzOi8vcXVpeC5haS9vd25lcl9pZCI6Imdvb2dsZS1vYXV0aDJ8MTE1MDc2OTc2MzQ1MDE5NzU4NzQ1IiwiaHR0cHM6Ly9xdWl4LmFpL3Rva2VuX2lkIjoiMmQ2NmRhNDYtMWZlYS00YTY4LWE3OTYtMTI0OTY3NzU1MzY0IiwiaHR0cHM6Ly9xdWl4LmFpL2V4cCI6IjE3MDM5NzcyMDAiLCJodHRwczovL3F1aXguYWkvcm9sZXMiOiJhZG1pbiIsImlzcyI6Imh0dHBzOi8vYXV0aC5xdWl4LmFpLyIsInN1YiI6ImRLV3dyMDhWZmRoSG9jRHVkeUZyT0xEVGYzSUx0ekdYQGNsaWVudHMiLCJhdWQiOiJxdWl4IiwiaWF0IjoxNjk1ODM1NjMwLCJleHAiOjE2OTg0Mjc2MzAsImF6cCI6ImRLV3dyMDhWZmRoSG9jRHVkeUZyT0xEVGYzSUx0ekdYIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIiwicGVybWlzc2lvbnMiOltdfQ.USB-Z_aL4Q0YhzaXYEVljfIHBlhM8Er_tgt3fcO0ACk8T2CPDCemyU8SdHWgVy_QlDnSxNbLz4PoPliDZZc4TNa4oRy-o4iY1sVZ1n2eP_PKI6tlCpinKRYrPFP9A-Pn7O6vrSXVLWTOoj9iVcaUqfKSKT3S86TrI8UQLuWWDkJcdbMpdscCFubiayUH8Ja1-Cub7CHDt9e55hUEyrZiNk-9g5RMNmU-OSHXTIUDDl_Z_M0yLS5DCfP9IskoNs0lN_-yZwBMc2bZ52Z4xGUZZg2YtrwUTVaArrkZI_oo16JIP7t4i-HWHH5BdJZU6JGlnv9RkhKwUcdeSDdvb8aCnA'; // Create a token in the Tokens menu and paste it here
   public workspaceId: string = 'demo-chatappdemo-prod'; // Look in the URL for the Quix Portal your workspace ID is after 'workspace='
   public messagesTopic: string = 'chat-messages'; // get topic name from the Topics page
   public messagesSanitizedTopic: string = 'messages_sanitized'; // new adddition for tutorial
@@ -88,7 +88,7 @@ export class QuixService {
         return {workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic, portalApi};
       }));
 
-      value$.subscribe(({ workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, portalApi }) => {
+      value$.subscribe(({ workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic, portalApi }) => {
         this.workspaceId = this.stripLineFeed(workspaceId);
         this.messagesTopic = this.stripLineFeed(this.workspaceId + '-' + messagesTopic);
         this.draftsTopic = this.stripLineFeed(this.workspaceId + '-' + draftTopic);
@@ -276,4 +276,3 @@ export class QuixService {
   }
 
 }
-
