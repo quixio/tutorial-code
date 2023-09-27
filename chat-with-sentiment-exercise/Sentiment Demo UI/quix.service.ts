@@ -84,8 +84,8 @@ export class QuixService {
         draftsSentimentTopic$,
         messagesSanitizedTopic$,
         portalApi$
-      ]).pipe(map(([workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic$, portalApi]) => {
-        return {workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic$, portalApi};
+      ]).pipe(map(([workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic, portalApi]) => {
+        return {workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic, portalApi};
       }));
 
       value$.subscribe(({ workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, portalApi }) => {
