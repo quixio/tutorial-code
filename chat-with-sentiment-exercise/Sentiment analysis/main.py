@@ -13,7 +13,7 @@ client = qx.QuixStreamingClient()
 print("Opening input and output topics")
 
 consumer_topic = client.get_topic_consumer(
-    'messages',
+    os.environ['input'],
     "sentiment-analysis-v2",
     auto_offset_reset = qx.AutoOffsetReset.Earliest)
 
