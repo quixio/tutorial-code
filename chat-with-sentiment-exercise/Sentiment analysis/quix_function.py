@@ -9,7 +9,7 @@ with open('banned_words.txt', 'r', encoding='ISO-8859-1') as f:
 
 def censor_banned_words(text, banned_words):
     for word in banned_words:
-        text = re.sub(re.escape(word), '*' * len(word), text, flags=re.IGNORECASE)
+        text = re.sub(r'\b' + re.escape(word) + r'\b', '*' * len(word), text, flags=re.IGNORECASE)
     return text
 
 class QuixFunction:
