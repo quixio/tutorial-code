@@ -1,6 +1,6 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, Pipe, PipeTransform } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Subject, Subscription, debounceTime, take, takeUntil, timer } from 'rxjs';
+import { Subject, Subscription, debounceTime, filter, take, takeUntil, timer } from 'rxjs';
 import { MessagePayload } from 'src/app/models/messagePayload';
 import { ParameterData } from 'src/app/models/parameterData';
 import { ConnectionStatus, QuixService } from 'src/app/services/quix.service';
@@ -17,6 +17,26 @@ export const NEGATIVE_THRESHOLD = -0.5;
 export class UserTyping {
   timeout?: Subscription;
   sentiment?: number;
+}
+
+
+/**
+ * Custom Pipe to filter the list of messages, so that
+ * it only shows the messages in the chat where a sentiment
+ * is present.
+ */
+@Pipe({
+  name: 'sentimentFilter'
+})
+export class SentimentFilterPipe implements PipeTransform {
+  transform(messages: MessagePayload[], isTwitch: boolean): any[] {
+    if (!messages || !isTwitch) {
+      return messages;
+    }
+
+    // Filter the messages to only show the ones where sentiment is present
+    return messages.filter(message => message.sentiment !== undefined);
+  }
 }
 
 @Component({
@@ -85,7 +105,10 @@ export class WebChatComponent implements OnInit {
     });
   
     // Listen for reader messages
-    this.quixService.paramDataReceived$.pipe(takeUntil(this.unsubscribe$)).subscribe((payload) => {
+    this.quixService.paramDataReceived$.pipe(
+      takeUntil(this.unsubscribe$), 
+      filter((f) => f.streamId === this.roomService.selectedRoom) // Ensure there is no message leaks
+    ).subscribe((payload) => {
       this.messageReceived(payload);
     });
 
@@ -174,7 +197,7 @@ export class WebChatComponent implements OnInit {
       this.usersTyping.set(name, user);
     }
 
-    if (topicId === this.quixService.messagesSanitizedTopic)  {   // change for tutorial
+    if (topicId === this.quixService.messagesTopic || topicId === this.quixService.twitchMessagesTopic) {
        // If the user is in the typing map then remove them
        if (user) {
         user?.timeout?.unsubscribe();
@@ -186,10 +209,13 @@ export class WebChatComponent implements OnInit {
 
     if (topicId === this.quixService.sentimentTopic) {
       if (!message) return;
+
       // Update existing message with the sentiment
       message.sentiment = sentiment;
       this.averageSentiment = averageSentiment;
-
+      
+      // Trigger change detection for the pipe
+      this.messages = [...this.messages];
     }
 
     // Scroll to the button of the chart
