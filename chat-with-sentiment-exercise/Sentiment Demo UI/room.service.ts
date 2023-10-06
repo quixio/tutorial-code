@@ -194,10 +194,10 @@ export class RoomService {
   public subscribeToRoom(roomName: string): void {
     // console.log(`Room Service | Subscribing to the room - ${roomName}`);
     this.quixService.subscribeToParameter(this.quixService.messagesTopic, roomName, "*");
+    this.quixService.subscribeToParameter(this.quixService.twitchMessagesTopic, roomName, "*");
     this.quixService.subscribeToParameter(this.quixService.draftsTopic, roomName, "*");
     this.quixService.subscribeToParameter(this.quixService.sentimentTopic, roomName, "*");
     this.quixService.subscribeToParameter(this.quixService.draftsSentimentTopic, roomName, "*");
-    this.quixService.subscribeToParameter(this.quixService.messagesSanitizedTopic, roomName, "*"); // addition for tutorial
   }
 
   /**
@@ -208,10 +208,10 @@ export class RoomService {
   public unsubscribeFromRoom(roomName: string): void {
     // console.log(`Room Service | Unsubscribing from the room - ${roomName}`);
     this.quixService.unsubscribeFromParameter(this.quixService.messagesTopic, roomName, "*");
+    this.quixService.unsubscribeFromParameter(this.quixService.twitchMessagesTopic, roomName, "*");
     this.quixService.unsubscribeFromParameter(this.quixService.draftsTopic, roomName, "*");
     this.quixService.unsubscribeFromParameter(this.quixService.sentimentTopic, roomName, "*");
     this.quixService.unsubscribeFromParameter(this.quixService.draftsSentimentTopic, roomName, "*");
-    this.quixService.unsubscribeFromParameter(this.quixService.messagesSanitizedTopic, roomName, "*"); // addition for tutorial
 
   }
 
