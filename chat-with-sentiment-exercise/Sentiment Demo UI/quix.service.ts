@@ -26,10 +26,9 @@ export class QuixService {
   /*WORKING LOCALLY? UPDATE THESE!*/
   private token: string = ''; // Create a token in the Tokens menu and paste it here
   private workingLocally = false; // set to true if working locally
-  private token: string = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Ik1qVTBRVE01TmtJNVJqSTNOVEpFUlVSRFF6WXdRVFF4TjBSRk56SkNNekpFUWpBNFFqazBSUSJ9.eyJodHRwczovL3F1aXguYWkvb3JnX2lkIjoiY3J5cHRvbWVybGlubyIsImh0dHBzOi8vcXVpeC5haS9vd25lcl9pZCI6Imdvb2dsZS1vYXV0aDJ8MTE1MDc2OTc2MzQ1MDE5NzU4NzQ1IiwiaHR0cHM6Ly9xdWl4LmFpL3Rva2VuX2lkIjoiMmQ2NmRhNDYtMWZlYS00YTY4LWE3OTYtMTI0OTY3NzU1MzY0IiwiaHR0cHM6Ly9xdWl4LmFpL2V4cCI6IjE3MDM5NzcyMDAiLCJodHRwczovL3F1aXguYWkvcm9sZXMiOiJhZG1pbiIsImlzcyI6Imh0dHBzOi8vYXV0aC5xdWl4LmFpLyIsInN1YiI6ImRLV3dyMDhWZmRoSG9jRHVkeUZyT0xEVGYzSUx0ekdYQGNsaWVudHMiLCJhdWQiOiJxdWl4IiwiaWF0IjoxNjk1ODM1NjMwLCJleHAiOjE2OTg0Mjc2MzAsImF6cCI6ImRLV3dyMDhWZmRoSG9jRHVkeUZyT0xEVGYzSUx0ekdYIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIiwicGVybWlzc2lvbnMiOltdfQ.USB-Z_aL4Q0YhzaXYEVljfIHBlhM8Er_tgt3fcO0ACk8T2CPDCemyU8SdHWgVy_QlDnSxNbLz4PoPliDZZc4TNa4oRy-o4iY1sVZ1n2eP_PKI6tlCpinKRYrPFP9A-Pn7O6vrSXVLWTOoj9iVcaUqfKSKT3S86TrI8UQLuWWDkJcdbMpdscCFubiayUH8Ja1-Cub7CHDt9e55hUEyrZiNk-9g5RMNmU-OSHXTIUDDl_Z_M0yLS5DCfP9IskoNs0lN_-yZwBMc2bZ52Z4xGUZZg2YtrwUTVaArrkZI_oo16JIP7t4i-HWHH5BdJZU6JGlnv9RkhKwUcdeSDdvb8aCnA'; // Create a token in the Tokens menu and paste it here
   public workspaceId: string = 'demo-chatappdemo-prod'; // Look in the URL for the Quix Portal your workspace ID is after 'workspace='
   public messagesTopic: string = 'chat-messages'; // get topic name from the Topics page
-  public messagesSanitizedTopic: string = 'messages_sanitized'; // new adddition for tutorial
+  public twitchMessagesTopic: string = 'twitch-messages'; // get topic name from the Topics page
   public draftsTopic: string = 'drafts'; // get topic from the Topics page
   public sentimentTopic: string = 'chat-with-sentiment'; // get topic name from the Topics page
   public draftsSentimentTopic: string = 'drafts_sentiment'; // get topic name from the Topics page
@@ -86,7 +85,6 @@ export class QuixService {
       let draftTopic$ = this.httpClient.get(this.server + 'drafts_topic', {headers, responseType: 'text'});
       let sentimentTopic$ = this.httpClient.get(this.server + 'sentiment_topic', {headers, responseType: 'text'});
       let draftsSentimentTopic$ = this.httpClient.get(this.server + 'drafts_sentiment_topic', {headers, responseType: 'text'});
-      let messagesSanitizedTopic$ = this.httpClient.get(this.server + 'messages_sanitized_topic', {headers, responseType: 'text'}); // new adddition for tutorial
       let portalApi$ = this.httpClient.get(this.server + "portal_api", {headers, responseType: 'text'})
 
       // if the solution is deployed in the platform. as part of the ungated / demo experience, set these so the links work correctly.
@@ -106,21 +104,26 @@ export class QuixService {
         draftTopic$,
         sentimentTopic$,
         draftsSentimentTopic$,
-        messagesSanitizedTopic$,
-        portalApi$
-      ]).pipe(map(([workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic, portalApi]) => {
-        return {workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic, portalApi};
+
+        // Deployments
+        sentimentAnalysisDeploymentId$,
+        twitchSentimentAnalysisDeploymentId$
+
+      ]).pipe(map(([bearerToken, workspaceId,  portalApi, messagesTopic, twitchMessagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, sentimentAnalysisDeploymentId, twitchSentimentAnalysisDeploymentId]) => {
+        return {bearerToken, workspaceId, portalApi, messagesTopic, twitchMessagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, sentimentAnalysisDeploymentId, twitchSentimentAnalysisDeploymentId};
       }));
 
-      value$.subscribe(({ workspaceId, messagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, messagesSanitizedTopic, portalApi }) => {
+      value$.subscribe(({ bearerToken, workspaceId, portalApi, messagesTopic, twitchMessagesTopic, draftTopic, sentimentTopic, draftsSentimentTopic, sentimentAnalysisDeploymentId, twitchSentimentAnalysisDeploymentId }) => {
+        this.token = this.stripLineFeed(bearerToken);
         this.workspaceId = this.stripLineFeed(workspaceId);
         this.messagesTopic = this.stripLineFeed(this.workspaceId + '-' + messagesTopic);
         this.twitchMessagesTopic = this.stripLineFeed(this.workspaceId + '-' + twitchMessagesTopic);
         this.draftsTopic = this.stripLineFeed(this.workspaceId + '-' + draftTopic);
         this.sentimentTopic = this.stripLineFeed(this.workspaceId + '-' + sentimentTopic);
         this.draftsSentimentTopic = this.stripLineFeed(this.workspaceId + '-' + draftsSentimentTopic);
-        this.messagesSanitizedTopic = this.stripLineFeed(this.workspaceId + '-' + messagesSanitizedTopic);  // new adddition for tutorial
-       
+        this.sentimentAnalysisDeploymentId = this.stripLineFeed(this.workspaceId + '-' + sentimentAnalysisDeploymentId);
+        this.twitchSentimentAnalysisDeploymentId = this.stripLineFeed(this.workspaceId + '-' + twitchSentimentAnalysisDeploymentId);
+
         portalApi = portalApi.replace("\n", "");
         let matches = portalApi.match(this.domainRegex);
         if(matches) {
