@@ -1,0 +1,6 @@
+# .env
+compose.local.yaml
+.secrets
+.venv/
+certificates/
+.idea/
